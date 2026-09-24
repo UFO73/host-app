@@ -1,6 +1,6 @@
 import type { Dispatch } from '@reduxjs/toolkit';
 import type { ViewerBridgeClient } from '../bridge/bridgeListeners';
-import { ViewerTool, type MeasurementPayload } from '../bridge/contract';
+import type { MeasurementPayload, ViewerToolName } from '../bridge/contract';
 import {
   measurementAddedReceived,
   measurementCancelled,
@@ -17,9 +17,9 @@ type MeasurementFlowOptions = {
 export class MeasurementFlow {
   constructor(private readonly options: MeasurementFlowOptions) {}
 
-  activate(rowId: string) {
+  activate(rowId: string, toolName: ViewerToolName) {
     this.options.dispatch(measurementDrawingStarted({ rowId }));
-    this.options.bridge.activateTool({ rowId, toolName: ViewerTool.ELLIPTICAL_ROI });
+    this.options.bridge.activateTool({ rowId, toolName });
   }
 
   cancel(rowId: string) {

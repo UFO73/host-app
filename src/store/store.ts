@@ -25,7 +25,7 @@ const measurementFlow = new MeasurementFlow({ bridge: viewerBridgeClient, dispat
 
 listenerMiddleware.startListening({
   actionCreator: measurementActivationRequested,
-  effect: (action) => measurementFlow.activate(action.payload.rowId),
+  effect: (action) => measurementFlow.activate(action.payload.rowId, action.payload.toolName),
 });
 
 listenerMiddleware.startListening({

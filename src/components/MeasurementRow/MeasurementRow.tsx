@@ -1,5 +1,6 @@
 import { Badge, Button, EyeIcon, PlayIcon, TrashIcon } from '../../sharedComponents';
 import type { Measurement } from '../../store/slices/measurementsSlice';
+import { ViewerTool } from '../../bridge/contract';
 
 type MeasurementRowProps = {
   measurement: Measurement;
@@ -17,8 +18,9 @@ const statusLabel: Record<Measurement['status'], string> = {
 };
 
 export function MeasurementRow({ measurement, index, onActivate, onDeactivate, onFocus, onDelete }: MeasurementRowProps) {
-  const area = measurement.status === 'completed' ? measurement.area : undefined;
-  const name = `Вимірювання ${String(index + 1).padStart(2, '0')}`;
+  const metric = measurement.status === 'completed' ? measurement.metric : undefined;
+  const typeLabel = measurement.toolName === ViewerTool.LENGTH ? 'Довжина' : 'Еліпс';
+  const name = `${typeLabel} ${String(index + 1).padStart(2, '0')}`;
 
   return (
     <tr className="tw:border-t tw:border-neutral-200 tw:text-neutral-800">
@@ -29,10 +31,10 @@ export function MeasurementRow({ measurement, index, onActivate, onDeactivate, o
         <Badge status={measurement.status}>{statusLabel[measurement.status]}</Badge>
       </td>
       <td className="tw:px-2 tw:py-3 tw:font-medium">
-        {area ? area.value.toFixed(1) : '-'}
-        {area && <span className="tw:ml-1 tw:sm:hidden">{area.unit}</span>}
+        {metric ? metric.value.toFixed(1) : '-'}
+        {metric && <span className="tw:ml-1 tw:sm:hidden">{metric.unit}</span>}
       </td>
-      <td className="tw:hidden tw:px-2 tw:py-3 tw:font-medium tw:sm:table-cell">{area?.unit ?? '-'}</td>
+      <td className="tw:hidden tw:px-2 tw:py-3 tw:font-medium tw:sm:table-cell">{metric?.unit ?? '-'}</td>
       <td className="tw:px-2 tw:py-3">
         {measurement.status === 'waiting' && (
           <Button className="tw:w-full tw:px-2" onClick={() => onActivate(measurement.rowId)}>

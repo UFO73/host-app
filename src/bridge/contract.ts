@@ -1,5 +1,5 @@
 export { hostToViewerMessageSchema, viewerToHostMessageSchema } from './schemas';
-export { BRIDGE_PROTOCOL_VERSION, BridgeMessageType, ViewerTool } from './constants';
+export { BRIDGE_PROTOCOL_VERSION, BridgeMessageType, ViewerTool, type ViewerToolName } from './constants';
 export type {
   ActivateToolPayload,
   DeactivateToolPayload,

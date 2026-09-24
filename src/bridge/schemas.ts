@@ -7,7 +7,7 @@ const annotationIdSchema = z.string().min(1);
 
 export const activateToolPayloadSchema = z.object({
   rowId: rowIdSchema,
-  toolName: z.literal(ViewerTool.ELLIPTICAL_ROI),
+  toolName: z.enum([ViewerTool.ELLIPTICAL_ROI, ViewerTool.LENGTH]),
 });
 
 export const deactivateToolPayloadSchema = z.object({
@@ -25,7 +25,8 @@ export const deleteMeasurementPayloadSchema = z.object({
 export const measurementPayloadSchema = z.object({
   rowId: rowIdSchema,
   annotationId: annotationIdSchema,
-  area: z.object({
+  toolName: z.enum([ViewerTool.ELLIPTICAL_ROI, ViewerTool.LENGTH]),
+  metric: z.object({
     value: z.number(),
     unit: z.string().min(1),
   }),

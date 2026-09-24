@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Button, PlusIcon } from '../../sharedComponents';
+import { ViewerTool, type ViewerToolName } from '../../bridge/contract';
+import { Button, PlusIcon, Select } from '../../sharedComponents';
 import {
   measurementActivationRequested,
   measurementAddedRequested,
@@ -8,7 +10,7 @@ import {
   measurementDeletionRequested,
   measurementFocusRequested,
   selectMeasurements,
-  selectTotalsByUnit,
+  selectTotals,
 } from '../../store/slices/measurementsSlice';
 import type { AppDispatch } from '../../store/store';
 import { MeasurementList } from '../MeasurementList';
@@ -16,9 +18,10 @@ import { MeasurementRow } from '../MeasurementRow';
 import { MeasurementTotals } from '../MeasurementTotals';
 
 export function ScoringForm() {
+  const [selectedTool, setSelectedTool] = useState<ViewerToolName>(ViewerTool.ELLIPTICAL_ROI);
   const dispatch = useDispatch<AppDispatch>();
   const measurements = useSelector(selectMeasurements);
-  const totalsByUnit = useSelector(selectTotalsByUnit);
+  const totals = useSelector(selectTotals);
 
   return (
     <aside
@@ -28,7 +31,16 @@ export function ScoringForm() {
       <h1 id="scoring-form-title" className="tw:sr-only">
         Scoring Form
       </h1>
-      <Button className="tw:h-12 tw:w-full tw:text-base" onClick={() => dispatch(measurementAddedRequested())}>
+      <Select
+        label="Інструмент"
+        options={[
+          { label: 'Еліпс', value: ViewerTool.ELLIPTICAL_ROI },
+          { label: 'Довжина', value: ViewerTool.LENGTH },
+        ]}
+        value={selectedTool}
+        onChange={(event) => setSelectedTool(event.target.value as ViewerToolName)}
+      />
+      <Button className="tw:h-12 tw:w-full tw:text-base" onClick={() => dispatch(measurementAddedRequested(selectedTool))}>
         <PlusIcon className="tw:size-6" />
         Додати вимірювання
       </Button>
@@ -38,14 +50,14 @@ export function ScoringForm() {
             key={measurement.rowId}
             measurement={measurement}
             index={index}
-            onActivate={(rowId) => dispatch(measurementActivationRequested({ rowId }))}
+            onActivate={(rowId) => dispatch(measurementActivationRequested({ rowId, toolName: measurement.toolName }))}
             onDeactivate={(rowId) => dispatch(measurementCancellationRequested({ rowId }))}
             onFocus={(annotationId) => dispatch(measurementFocusRequested({ annotationId }))}
             onDelete={(rowId, annotationId) => dispatch(measurementDeletionRequested({ rowId, annotationId }))}
           />
         ))}
       </MeasurementList>
-      <MeasurementTotals totalsByUnit={totalsByUnit} />
+      <MeasurementTotals totals={totals} />
     </aside>
   );
 }

@@ -1,6 +1,6 @@
 import type { Dispatch } from '@reduxjs/toolkit';
 import type { ViewerBridgeClient } from '../bridge/bridgeListeners';
-import type { MeasurementPayload, ViewerToolName } from '../bridge/contract';
+import type { MeasurementPayload, MeasurementRemovedPayload, ViewerToolName } from '../bridge/contract';
 import {
   measurementAddedReceived,
   measurementCancelled,
@@ -42,5 +42,9 @@ export class MeasurementFlow {
 
   handleMeasurementUpdated(payload: MeasurementPayload) {
     this.options.dispatch(measurementUpdatedReceived(payload));
+  }
+
+  handleMeasurementRemoved(payload: MeasurementRemovedPayload) {
+    this.options.dispatch(measurementDeleted({ rowId: payload.rowId }));
   }
 }

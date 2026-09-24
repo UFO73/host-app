@@ -51,4 +51,8 @@ viewerBridgeClient.subscribe((message) => {
   if (message.type === BridgeMessageType.MEASUREMENT_UPDATED) {
     measurementFlow.handleMeasurementUpdated(message.payload);
   }
+
+  if (message.type === BridgeMessageType.MEASUREMENT_REMOVED) {
+    measurementFlow.handleMeasurementRemoved(message.payload);
+  }
 });

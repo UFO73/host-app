@@ -50,9 +50,7 @@ const measurementsSlice = createSlice({
       });
     },
     measurementCancelled(state, action: PayloadAction<{ rowId: string }>) {
-      state.rows = state.rows.map((row) =>
-        row.rowId === action.payload.rowId && row.status === 'drawing' ? { status: 'waiting', rowId: row.rowId, toolName: row.toolName } : row,
-      );
+      state.rows = state.rows.filter((row) => row.rowId !== action.payload.rowId || row.status !== 'drawing');
     },
     measurementAddedReceived(state, action: PayloadAction<MeasurementResult>) {
       state.rows = state.rows.map((row) => (row.rowId === action.payload.rowId && row.status === 'drawing' ? { status: 'completed', ...action.payload } : row));

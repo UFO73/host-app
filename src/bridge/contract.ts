@@ -7,5 +7,6 @@ export type {
   FocusMeasurementPayload,
   HostToViewerMessage,
   MeasurementPayload,
+  MeasurementRemovedPayload,
   ViewerToHostMessage,
 } from './bridge.types';

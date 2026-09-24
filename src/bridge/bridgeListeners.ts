@@ -19,10 +19,24 @@ export class ViewerBridgeClient {
   private queuedMessages: HostToViewerMessage[] = [];
   private viewerWindow: Window | null = null;
   private ready = false;
+  private connected = false;
 
   constructor({ viewerOrigin }: ViewerBridgeClientOptions) {
     this.viewerOrigin = viewerOrigin;
+  }
+
+  connect() {
+    if (this.connected) return;
     window.addEventListener('message', this.handleMessage);
+    this.connected = true;
+  }
+
+  disconnect() {
+    if (!this.connected) return;
+    window.removeEventListener('message', this.handleMessage);
+    this.connected = false;
+    this.queuedMessages = [];
+    this.ready = false;
   }
 
   setViewerWindow(viewerWindow: Window | null) {
@@ -55,11 +69,9 @@ export class ViewerBridgeClient {
   }
 
   destroy() {
-    window.removeEventListener('message', this.handleMessage);
+    this.disconnect();
     this.listeners.clear();
-    this.queuedMessages = [];
     this.viewerWindow = null;
-    this.ready = false;
   }
 
   private readonly handleMessage = (event: MessageEvent) => {

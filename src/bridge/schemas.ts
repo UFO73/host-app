@@ -32,6 +32,11 @@ export const measurementPayloadSchema = z.object({
   }),
 });
 
+export const measurementRemovedPayloadSchema = z.object({
+  rowId: rowIdSchema,
+  annotationId: annotationIdSchema,
+});
+
 export const hostToViewerMessageSchema = z.discriminatedUnion('type', [
   z.object({
     version: z.literal(BRIDGE_PROTOCOL_VERSION),
@@ -70,5 +75,10 @@ export const viewerToHostMessageSchema = z.discriminatedUnion('type', [
     version: z.literal(BRIDGE_PROTOCOL_VERSION),
     type: z.literal(BridgeMessageType.MEASUREMENT_UPDATED),
     payload: measurementPayloadSchema,
+  }),
+  z.object({
+    version: z.literal(BRIDGE_PROTOCOL_VERSION),
+    type: z.literal(BridgeMessageType.MEASUREMENT_REMOVED),
+    payload: measurementRemovedPayloadSchema,
   }),
 ]);

@@ -7,6 +7,7 @@ import type {
   focusMeasurementPayloadSchema,
   hostToViewerMessageSchema,
   measurementPayloadSchema,
+  measurementRemovedPayloadSchema,
   viewerToHostMessageSchema,
 } from './schemas';
 
@@ -17,3 +18,4 @@ export type DeactivateToolPayload = z.infer<typeof deactivateToolPayloadSchema>;
 export type DeleteMeasurementPayload = z.infer<typeof deleteMeasurementPayloadSchema>;
 export type FocusMeasurementPayload = z.infer<typeof focusMeasurementPayloadSchema>;
 export type MeasurementPayload = z.infer<typeof measurementPayloadSchema>;
+export type MeasurementRemovedPayload = z.infer<typeof measurementRemovedPayloadSchema>;

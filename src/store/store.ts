@@ -1,10 +1,38 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, createListenerMiddleware } from '@reduxjs/toolkit';
+import { ViewerBridgeClient } from '../bridge/bridgeListeners';
+import { BridgeMessageType } from '../bridge/constants';
+import { viewerConfig } from '../config/env';
+import { MeasurementFlow } from './MeasurementFlow';
+import { measurementActivationRequested, measurementCancellationRequested, measurementsReducer } from './slices/measurementsSlice';
 
-const rootReducer = (state: Record<string, never> = {}) => state;
+const listenerMiddleware = createListenerMiddleware();
 
 export const store = configureStore({
-  reducer: rootReducer,
+  reducer: { measurements: measurementsReducer },
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().prepend(listenerMiddleware.middleware),
 });
 
-export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
+
+export const viewerBridgeClient = new ViewerBridgeClient({ viewerOrigin: viewerConfig.origin });
+const measurementFlow = new MeasurementFlow({ bridge: viewerBridgeClient, dispatch: store.dispatch });
+
+listenerMiddleware.startListening({
+  actionCreator: measurementActivationRequested,
+  effect: (action) => measurementFlow.activate(action.payload.rowId),
+});
+
+listenerMiddleware.startListening({
+  actionCreator: measurementCancellationRequested,
+  effect: (action) => measurementFlow.cancel(action.payload.rowId),
+});
+
+viewerBridgeClient.subscribe((message) => {
+  if (message.type === BridgeMessageType.MEASUREMENT_ADDED) {
+    measurementFlow.handleMeasurementAdded(message.payload);
+  }
+
+  if (message.type === BridgeMessageType.MEASUREMENT_UPDATED) {
+    measurementFlow.handleMeasurementUpdated(message.payload);
+  }
+});

@@ -1,5 +1,13 @@
 export const BRIDGE_PROTOCOL_VERSION = 1 as const;
 
-export const BRIDGE_EVENT_TYPES = ['VIEWER_READY', 'ACTIVATE_TOOL', 'DEACTIVATE_TOOL', 'MEASUREMENT_ADDED', 'MEASUREMENT_UPDATED'] as const;
+export const BridgeMessageType = {
+  VIEWER_READY: 'VIEWER_READY',
+  ACTIVATE_TOOL: 'ACTIVATE_TOOL',
+  DEACTIVATE_TOOL: 'DEACTIVATE_TOOL',
+  MEASUREMENT_ADDED: 'MEASUREMENT_ADDED',
+  MEASUREMENT_UPDATED: 'MEASUREMENT_UPDATED',
+} as const;
 
-export type BridgeEventType = (typeof BRIDGE_EVENT_TYPES)[number];
+export const ViewerTool = {
+  ELLIPTICAL_ROI: 'EllipticalROI',
+} as const;

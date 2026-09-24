@@ -59,14 +59,25 @@ const measurementsSlice = createSlice({
           : row,
       );
     },
+    measurementDeleted(state, action: PayloadAction<{ rowId: string }>) {
+      state.rows = state.rows.filter((row) => row.rowId !== action.payload.rowId);
+    },
   },
 });
 
-export const { measurementAddedReceived, measurementAddedRequested, measurementCancelled, measurementDrawingStarted, measurementUpdatedReceived } =
-  measurementsSlice.actions;
+export const {
+  measurementAddedReceived,
+  measurementAddedRequested,
+  measurementCancelled,
+  measurementDeleted,
+  measurementDrawingStarted,
+  measurementUpdatedReceived,
+} = measurementsSlice.actions;
 
 export const measurementActivationRequested = createAction<{ rowId: string }>('measurements/measurementActivationRequested');
 export const measurementCancellationRequested = createAction<{ rowId: string }>('measurements/measurementCancellationRequested');
+export const measurementFocusRequested = createAction<{ annotationId: string }>('measurements/measurementFocusRequested');
+export const measurementDeletionRequested = createAction<{ rowId: string; annotationId: string }>('measurements/measurementDeletionRequested');
 export const measurementsReducer = measurementsSlice.reducer;
 
 type MeasurementsRootState = { measurements: MeasurementsState };

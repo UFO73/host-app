@@ -20,3 +20,11 @@
       sans-serif;
   }
 }
+
+.scoring-form-scroll {
+  scrollbar-width: none;
+}
+
+.scoring-form-scroll::-webkit-scrollbar {
+  display: none;
+}

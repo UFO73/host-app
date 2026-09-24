@@ -1,10 +1,13 @@
-import { Badge, Button } from '../../sharedComponents';
+import { Badge, Button, EyeIcon, PlayIcon, TrashIcon } from '../../sharedComponents';
 import type { Measurement } from '../../store/slices/measurementsSlice';
 
 type MeasurementRowProps = {
   measurement: Measurement;
+  index: number;
   onActivate: (rowId: string) => void;
   onDeactivate: (rowId: string) => void;
+  onFocus: (annotationId: string) => void;
+  onDelete: (rowId: string, annotationId: string) => void;
 };
 
 const statusLabel: Record<Measurement['status'], string> = {
@@ -13,25 +16,54 @@ const statusLabel: Record<Measurement['status'], string> = {
   completed: 'Готово',
 };
 
-export function MeasurementRow({ measurement, onActivate, onDeactivate }: MeasurementRowProps) {
+export function MeasurementRow({ measurement, index, onActivate, onDeactivate, onFocus, onDelete }: MeasurementRowProps) {
   const area = measurement.status === 'completed' ? measurement.area : undefined;
-  const valueLabel = area ? `${area.value.toFixed(1)} ${area.unit}` : '-';
+  const name = `Вимірювання ${String(index + 1).padStart(2, '0')}`;
 
   return (
-    <div className="tw:grid tw:gap-3 tw:border tw:border-neutral-200 tw:bg-white tw:p-3" role="listitem">
-      <div className="tw:flex tw:items-start tw:justify-between tw:gap-3">
-        <div className="tw:min-w-0">
-          <p className="tw:text-sm tw:font-medium tw:text-neutral-950">{valueLabel}</p>
-          <p className="tw:mt-1 tw:truncate tw:text-xs tw:text-neutral-500">{measurement.rowId}</p>
-        </div>
-        <Badge>{statusLabel[measurement.status]}</Badge>
-      </div>
-      {measurement.status === 'drawing' && (
-        <Button className="tw:border-neutral-400 tw:bg-white tw:text-neutral-900 tw:hover:bg-neutral-100" onClick={() => onDeactivate(measurement.rowId)}>
-          Скасувати
-        </Button>
-      )}
-      {measurement.status === 'waiting' && <Button onClick={() => onActivate(measurement.rowId)}>Активувати</Button>}
-    </div>
+    <tr className="tw:border-t tw:border-neutral-200 tw:text-neutral-800">
+      <td className="tw:truncate tw:px-2 tw:py-3 tw:font-medium" title={name}>
+        {name}
+      </td>
+      <td className="tw:px-2 tw:py-3">
+        <Badge status={measurement.status}>{statusLabel[measurement.status]}</Badge>
+      </td>
+      <td className="tw:px-2 tw:py-3 tw:font-medium">
+        {area ? area.value.toFixed(1) : '-'}
+        {area && <span className="tw:ml-1 tw:sm:hidden">{area.unit}</span>}
+      </td>
+      <td className="tw:hidden tw:px-2 tw:py-3 tw:font-medium tw:sm:table-cell">{area?.unit ?? '-'}</td>
+      <td className="tw:px-2 tw:py-3">
+        {measurement.status === 'waiting' && (
+          <Button className="tw:w-full tw:px-2" onClick={() => onActivate(measurement.rowId)}>
+            <PlayIcon className="tw:size-4" />
+            Активувати
+          </Button>
+        )}
+        {measurement.status === 'drawing' && (
+          <Button className="tw:w-full tw:px-2" variant="neutral" onClick={() => onDeactivate(measurement.rowId)}>
+            Скасувати
+          </Button>
+        )}
+        {measurement.status === 'completed' && (
+          <div className="tw:flex tw:gap-2">
+            <Button className="tw:min-w-0 tw:flex-1 tw:px-2" variant="outline" onClick={() => onFocus(measurement.annotationId)}>
+              <EyeIcon className="tw:size-4" />
+              Фокус
+            </Button>
+            <Button
+              aria-label="Видалити вимірювання"
+              className="tw:px-2 tw:sm:flex-1"
+              title="Видалити"
+              variant="danger"
+              onClick={() => onDelete(measurement.rowId, measurement.annotationId)}
+            >
+              <TrashIcon className="tw:size-4" />
+              <span className="tw:hidden tw:sm:inline">Видалити</span>
+            </Button>
+          </div>
+        )}
+      </td>
+    </tr>
   );
 }

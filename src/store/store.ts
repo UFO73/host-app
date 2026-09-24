@@ -3,7 +3,13 @@ import { ViewerBridgeClient } from '../bridge/bridgeListeners';
 import { BridgeMessageType } from '../bridge/constants';
 import { viewerConfig } from '../config/env';
 import { MeasurementFlow } from './MeasurementFlow';
-import { measurementActivationRequested, measurementCancellationRequested, measurementsReducer } from './slices/measurementsSlice';
+import {
+  measurementActivationRequested,
+  measurementCancellationRequested,
+  measurementDeletionRequested,
+  measurementFocusRequested,
+  measurementsReducer,
+} from './slices/measurementsSlice';
 
 const listenerMiddleware = createListenerMiddleware();
 
@@ -25,6 +31,16 @@ listenerMiddleware.startListening({
 listenerMiddleware.startListening({
   actionCreator: measurementCancellationRequested,
   effect: (action) => measurementFlow.cancel(action.payload.rowId),
+});
+
+listenerMiddleware.startListening({
+  actionCreator: measurementFocusRequested,
+  effect: (action) => measurementFlow.focus(action.payload.annotationId),
+});
+
+listenerMiddleware.startListening({
+  actionCreator: measurementDeletionRequested,
+  effect: (action) => measurementFlow.delete(action.payload.rowId, action.payload.annotationId),
 });
 
 viewerBridgeClient.subscribe((message) => {

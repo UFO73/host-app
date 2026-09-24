@@ -1,7 +1,13 @@
 import type { Dispatch } from '@reduxjs/toolkit';
 import type { ViewerBridgeClient } from '../bridge/bridgeListeners';
 import { ViewerTool, type MeasurementPayload } from '../bridge/contract';
-import { measurementAddedReceived, measurementCancelled, measurementDrawingStarted, measurementUpdatedReceived } from './slices/measurementsSlice';
+import {
+  measurementAddedReceived,
+  measurementCancelled,
+  measurementDeleted,
+  measurementDrawingStarted,
+  measurementUpdatedReceived,
+} from './slices/measurementsSlice';
 
 type MeasurementFlowOptions = {
   bridge: ViewerBridgeClient;
@@ -19,6 +25,15 @@ export class MeasurementFlow {
   cancel(rowId: string) {
     this.options.bridge.deactivateTool({ rowId });
     this.options.dispatch(measurementCancelled({ rowId }));
+  }
+
+  focus(annotationId: string) {
+    this.options.bridge.focusMeasurement({ annotationId });
+  }
+
+  delete(rowId: string, annotationId: string) {
+    this.options.bridge.deleteMeasurement({ annotationId });
+    this.options.dispatch(measurementDeleted({ rowId }));
   }
 
   handleMeasurementAdded(payload: MeasurementPayload) {

@@ -1,4 +1,11 @@
-import type { ActivateToolPayload, DeactivateToolPayload, HostToViewerMessage, ViewerToHostMessage } from './bridge.types';
+import type {
+  ActivateToolPayload,
+  DeactivateToolPayload,
+  DeleteMeasurementPayload,
+  FocusMeasurementPayload,
+  HostToViewerMessage,
+  ViewerToHostMessage,
+} from './bridge.types';
 import { BRIDGE_PROTOCOL_VERSION, BridgeMessageType } from './constants';
 import { viewerToHostMessageSchema } from './schemas';
 
@@ -30,6 +37,14 @@ export class ViewerBridgeClient {
 
   deactivateTool(payload: DeactivateToolPayload) {
     this.postToViewer({ version: BRIDGE_PROTOCOL_VERSION, type: BridgeMessageType.DEACTIVATE_TOOL, payload });
+  }
+
+  focusMeasurement(payload: FocusMeasurementPayload) {
+    this.postToViewer({ version: BRIDGE_PROTOCOL_VERSION, type: BridgeMessageType.FOCUS_MEASUREMENT, payload });
+  }
+
+  deleteMeasurement(payload: DeleteMeasurementPayload) {
+    this.postToViewer({ version: BRIDGE_PROTOCOL_VERSION, type: BridgeMessageType.DELETE_MEASUREMENT, payload });
   }
 
   subscribe(handler: ViewerMessageHandler): () => void {

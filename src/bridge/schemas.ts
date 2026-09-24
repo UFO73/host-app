@@ -14,6 +14,14 @@ export const deactivateToolPayloadSchema = z.object({
   rowId: rowIdSchema,
 });
 
+export const focusMeasurementPayloadSchema = z.object({
+  annotationId: annotationIdSchema,
+});
+
+export const deleteMeasurementPayloadSchema = z.object({
+  annotationId: annotationIdSchema,
+});
+
 export const measurementPayloadSchema = z.object({
   rowId: rowIdSchema,
   annotationId: annotationIdSchema,
@@ -33,6 +41,16 @@ export const hostToViewerMessageSchema = z.discriminatedUnion('type', [
     version: z.literal(BRIDGE_PROTOCOL_VERSION),
     type: z.literal(BridgeMessageType.DEACTIVATE_TOOL),
     payload: deactivateToolPayloadSchema,
+  }),
+  z.object({
+    version: z.literal(BRIDGE_PROTOCOL_VERSION),
+    type: z.literal(BridgeMessageType.FOCUS_MEASUREMENT),
+    payload: focusMeasurementPayloadSchema,
+  }),
+  z.object({
+    version: z.literal(BRIDGE_PROTOCOL_VERSION),
+    type: z.literal(BridgeMessageType.DELETE_MEASUREMENT),
+    payload: deleteMeasurementPayloadSchema,
   }),
 ]);
 

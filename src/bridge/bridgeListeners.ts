@@ -13,11 +13,14 @@ type ViewerMessageHandler = (message: ViewerToHostMessage) => void;
 
 type ViewerBridgeClientOptions = { viewerOrigin: string };
 
+const READY_REQUEST_INTERVAL_MS = 500;
+
 export class ViewerBridgeClient {
   private readonly viewerOrigin: string;
   private readonly listeners = new Set<ViewerMessageHandler>();
   private queuedMessages: HostToViewerMessage[] = [];
   private viewerWindow: Window | null = null;
+  private readyRequestTimer: number | null = null;
   private ready = false;
   private connected = false;
 
@@ -29,20 +32,23 @@ export class ViewerBridgeClient {
     if (this.connected) return;
     window.addEventListener('message', this.handleMessage);
     this.connected = true;
+    this.startReadyRequests();
   }
 
   disconnect() {
-    if (!this.connected) return;
-    window.removeEventListener('message', this.handleMessage);
+    if (this.connected) {
+      window.removeEventListener('message', this.handleMessage);
+    }
+    this.stopReadyRequests();
     this.connected = false;
     this.queuedMessages = [];
     this.ready = false;
   }
 
   setViewerWindow(viewerWindow: Window | null) {
-    if (this.viewerWindow === viewerWindow) return;
     this.viewerWindow = viewerWindow;
     this.ready = false;
+    this.startReadyRequests();
   }
 
   activateTool(payload: ActivateToolPayload) {
@@ -85,6 +91,7 @@ export class ViewerBridgeClient {
     switch (result.data.type) {
       case BridgeMessageType.VIEWER_READY:
         this.ready = true;
+        this.stopReadyRequests();
         console.log('[HostBridge] viewer ready');
         this.flushQueue();
         break;
@@ -109,6 +116,31 @@ export class ViewerBridgeClient {
     const queuedMessages = this.queuedMessages.splice(0);
     queuedMessages.forEach(this.sendToViewer);
   }
+
+  private startReadyRequests() {
+    this.stopReadyRequests();
+    if (!this.connected || !this.viewerWindow) return;
+
+    this.requestViewerReady();
+    this.readyRequestTimer = window.setInterval(this.requestViewerReady, READY_REQUEST_INTERVAL_MS);
+  }
+
+  private stopReadyRequests() {
+    if (this.readyRequestTimer === null) return;
+    window.clearInterval(this.readyRequestTimer);
+    this.readyRequestTimer = null;
+  }
+
+  private readonly requestViewerReady = () => {
+    this.viewerWindow?.postMessage(
+      {
+        version: BRIDGE_PROTOCOL_VERSION,
+        type: BridgeMessageType.REQUEST_VIEWER_READY,
+        payload: {},
+      },
+      this.viewerOrigin,
+    );
+  };
 
   private readonly sendToViewer = (message: HostToViewerMessage) => {
     if (!this.viewerWindow) return;

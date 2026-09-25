@@ -55,59 +55,9 @@ Host transport відповідає за `postMessage`, `iframe.contentWindow`, 
 
 Extension отримує `commandsManager` і `servicesManager` у `preRegistration`, активує OHIF tools та публікує measurement events у Host.
 
-## Protocol
+## Bridge API
 
-Кожне повідомлення має однакову оболонку:
-
-```ts
-{
-  version: 1,
-  type: string,
-  payload: object
-}
-```
-
-| Напрямок      | Type                  | Payload                                     | Призначення                     |
-| ------------- | --------------------- | ------------------------------------------- | ------------------------------- |
-| Viewer → Host | `VIEWER_READY`        | `{}`                                        | Viewer готовий приймати команди |
-| Host → Viewer | `ACTIVATE_TOOL`       | `{ rowId, toolName }`                       | Активувати Ellipse або Length   |
-| Host → Viewer | `DEACTIVATE_TOOL`     | `{ rowId }`                                 | Скасувати очікування малювання  |
-| Host → Viewer | `FOCUS_MEASUREMENT`   | `{ annotationId }`                          | Перейти до анотації             |
-| Host → Viewer | `DELETE_MEASUREMENT`  | `{ annotationId }`                          | Видалити анотацію               |
-| Viewer → Host | `MEASUREMENT_ADDED`   | `{ rowId, annotationId, toolName, metric }` | Передати створене вимірювання   |
-| Viewer → Host | `MEASUREMENT_UPDATED` | `{ rowId, annotationId, toolName, metric }` | Оновити значення                |
-| Viewer → Host | `MEASUREMENT_REMOVED` | `{ rowId, annotationId }`                   | Видалити рядок після дії в OHIF |
-
-Приклад команди:
-
-```json
-{
-  "version": 1,
-  "type": "ACTIVATE_TOOL",
-  "payload": {
-    "rowId": "48bd...",
-    "toolName": "EllipticalROI"
-  }
-}
-```
-
-Приклад результату:
-
-```json
-{
-  "version": 1,
-  "type": "MEASUREMENT_ADDED",
-  "payload": {
-    "rowId": "48bd...",
-    "annotationId": "annotation-123",
-    "toolName": "EllipticalROI",
-    "metric": {
-      "value": 124.5,
-      "unit": "mm²"
-    }
-  }
-}
-```
+Повний список повідомлень, напрямків і payload описаний у [BRIDGE-CONTRACT.md](./BRIDGE-CONTRACT.md).
 
 ## Безпека повідомлень
 
@@ -135,11 +85,9 @@ event.source === window.parent
 
 `annotationId` створює OHIF. Viewer зберігає відповідність `annotationId -> rowId`, щоб подальший `MEASUREMENT_UPDATED` потрапив у правильний рядок.
 
-`requestId` не використовується, оскільки актуальний Viewer protocol корелює операцію через `rowId`.
-
 ### Handshake
 
-Viewer надсилає `VIEWER_READY` після готовності viewport. До цього Host не надсилає команди у `iframe`.
+Host повторює `REQUEST_VIEWER_READY`, доки Viewer не відповість `VIEWER_READY`. Viewer відповідає тільки після готовності viewport, тому порядок завантаження застосунків не має значення. До завершення handshake Host не надсилає tool-команди у `iframe`.
 
 ### Команди, які прийшли зарано
 
@@ -149,9 +97,9 @@ Viewer надсилає `VIEWER_READY` після готовності viewport.
 
 ### Відновлення після перезавантаження
 
-Host зберігає measurement rows у своєму `sessionStorage` та передає їх у Redux через `preloadedState`. Рядок зі статусом `drawing` відновлюється як `waiting`, оскільки незавершене малювання не можна продовжити після reload.
+Host зберігає measurement rows у своєму `sessionStorage` окремо для кожного `StudyInstanceUID` та передає їх у Redux через `preloadedState`. Рядок зі статусом `drawing` відновлюється як `waiting`, оскільки незавершене малювання не можна продовжити після reload.
 
-Viewer окремо зберігає Cornerstone annotation snapshots у своєму `sessionStorage`. Перед `VIEWER_READY` extension додає їх назад у Cornerstone та відновлює зв'язок `annotationId -> rowId`. Завдяки цьому після reload продовжують працювати update, focus і delete, а різні вкладки не перезаписують стан одна одної.
+Viewer окремо зберігає Cornerstone annotation snapshots у своєму `sessionStorage` за тим самим `StudyInstanceUID`. Перед `VIEWER_READY` extension відновлює лише анотації, `referencedImageId` яких належить поточному display set, і повертає зв'язок `annotationId -> rowId`. Завдяки цьому після reload продовжують працювати update, focus і delete, а анотації іншого дослідження не потрапляють у поточний Viewer.
 
 Нові protocol messages для persistence не потрібні: кожен застосунок відновлює власний state до початку звичайного bridge flow.
 

@@ -9,7 +9,7 @@ import { measurementsReducer } from './slices/measurementsSlice';
 export const store = configureStore({
   reducer: { measurements: measurementsReducer },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().prepend(measurementListenerMiddleware.middleware),
-  preloadedState: { measurements: loadMeasurements() },
+  preloadedState: { measurements: loadMeasurements(viewerConfig.studyInstanceUid) },
 });
 
 export type AppDispatch = typeof store.dispatch;
@@ -17,4 +17,4 @@ export type AppDispatch = typeof store.dispatch;
 export const viewerBridgeClient = new ViewerBridgeClient({ viewerOrigin: viewerConfig.origin });
 registerMeasurementListeners({ bridge: viewerBridgeClient, dispatch: store.dispatch });
 
-store.subscribe(() => saveMeasurements(store.getState().measurements));
+store.subscribe(() => saveMeasurements(viewerConfig.studyInstanceUid, store.getState().measurements));

@@ -31,14 +31,14 @@ export function MeasurementList({ children, count }: MeasurementListProps) {
           <table className="tw:w-full tw:table-fixed tw:border-collapse tw:bg-white tw:text-left tw:text-xs">
             <thead className="tw:bg-neutral-50 tw:text-neutral-600">
               <tr>
-                <th className="tw:w-[23%] tw:px-2 tw:py-3 tw:font-semibold tw:sm:w-[22%]">Назва</th>
+                <th className="tw:w-[15%] tw:px-2 tw:py-3 tw:font-semibold tw:sm:w-[15%]">Назва</th>
                 <th className="tw:w-[23%] tw:px-2 tw:py-3 tw:font-semibold tw:sm:w-[20%]">Статус</th>
-                <th className="tw:w-[17%] tw:px-2 tw:py-3 tw:font-semibold tw:sm:w-[12%]">
+                <th className="tw:w-[14%] tw:px-2 tw:py-3 tw:font-semibold tw:sm:w-[12%]">
                   <span className="tw:sm:hidden">Знач.</span>
                   <span className="tw:hidden tw:sm:inline">Значення</span>
                 </th>
                 <th className="tw:hidden tw:w-[11%] tw:px-2 tw:py-3 tw:font-semibold tw:sm:table-cell">Одиниці</th>
-                <th className="tw:w-[37%] tw:px-2 tw:py-3 tw:font-semibold tw:sm:w-[35%]">Дії</th>
+                <th className="tw:w-[40%] tw:px-2 tw:py-3 tw:font-semibold tw:sm:w-[35%]">Дії</th>
               </tr>
             </thead>
             <tbody>{children}</tbody>

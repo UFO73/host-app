@@ -69,3 +69,11 @@ export function TrashIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function ChevronDownIcon(props: IconProps) {
+  return (
+    <svg {...iconProps} {...props}>
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  );
+}

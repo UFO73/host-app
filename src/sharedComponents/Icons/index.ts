@@ -1,1 +1,1 @@
-export { DocumentIcon, EyeIcon, ListIcon, PlayIcon, PlusIcon, SigmaIcon, TrashIcon } from './Icons';
+export { ChevronDownIcon, DocumentIcon, EyeIcon, ListIcon, PlayIcon, PlusIcon, SigmaIcon, TrashIcon } from './Icons';

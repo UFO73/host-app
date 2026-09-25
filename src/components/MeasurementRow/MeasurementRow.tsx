@@ -31,25 +31,26 @@ export function MeasurementRow({ measurement, index, onActivate, onDeactivate, o
       <td className="tw:hidden tw:px-2 tw:py-3 tw:font-medium tw:sm:table-cell">{metric?.unit ?? '-'}</td>
       <td className="tw:px-2 tw:py-3">
         {measurement.status === 'waiting' && (
-          <Button className="tw:w-full tw:px-2" onClick={() => onActivate(measurement.rowId)}>
+          <Button className="tw:w-full" size="compact" onClick={() => onActivate(measurement.rowId)}>
             <PlayIcon className="tw:size-4" />
             Активувати
           </Button>
         )}
         {measurement.status === 'drawing' && (
-          <Button className="tw:w-full tw:px-2" variant="neutral" onClick={() => onDeactivate(measurement.rowId)}>
+          <Button className="tw:w-full" size="compact" variant="neutral" onClick={() => onDeactivate(measurement.rowId)}>
             Скасувати
           </Button>
         )}
         {measurement.status === 'completed' && (
           <div className="tw:flex tw:gap-2">
-            <Button className="tw:min-w-0 tw:flex-1 tw:px-2" variant="outline" onClick={() => onFocus(measurement.annotationId)}>
+            <Button className="tw:shrink-0" size="compact" variant="outline" onClick={() => onFocus(measurement.annotationId)}>
               <EyeIcon className="tw:size-4" />
               Фокус
             </Button>
             <Button
               aria-label="Видалити вимірювання"
-              className="tw:px-2 tw:sm:flex-1"
+              className="tw:min-w-0 tw:flex-1"
+              size="compact"
               title="Видалити"
               variant="danger"
               onClick={() => onDelete(measurement.annotationId)}

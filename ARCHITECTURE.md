@@ -147,6 +147,14 @@ Viewer надсилає `VIEWER_READY` після готовності viewport.
 
 Черга та ready-state не зберігаються в Redux, оскільки це transport state.
 
+### Відновлення після перезавантаження
+
+Host зберігає measurement rows у своєму `sessionStorage` та передає їх у Redux через `preloadedState`. Рядок зі статусом `drawing` відновлюється як `waiting`, оскільки незавершене малювання не можна продовжити після reload.
+
+Viewer окремо зберігає Cornerstone annotation snapshots у своєму `sessionStorage`. Перед `VIEWER_READY` extension додає їх назад у Cornerstone та відновлює зв'язок `annotationId -> rowId`. Завдяки цьому після reload продовжують працювати update, focus і delete, а різні вкладки не перезаписують стан одна одної.
+
+Нові protocol messages для persistence не потрібні: кожен застосунок відновлює власний state до початку звичайного bridge flow.
+
 ### Відсутність echo-циклу
 
 Host не надсилає measurement value назад у Viewer. Напрямки розділені:

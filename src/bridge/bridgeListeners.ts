@@ -82,10 +82,12 @@ export class ViewerBridgeClient {
 
     console.log('[HostBridge] received from viewer', result.data);
 
-    if (result.data.type === BridgeMessageType.VIEWER_READY) {
-      this.ready = true;
-      console.log('[HostBridge] viewer ready');
-      this.flushQueue();
+    switch (result.data.type) {
+      case BridgeMessageType.VIEWER_READY:
+        this.ready = true;
+        console.log('[HostBridge] viewer ready');
+        this.flushQueue();
+        break;
     }
 
     this.listeners.forEach((handler) => handler(result.data));

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { ViewerTool, type ViewerToolName } from '../../bridge/contract';
+import { measurementToolOptions } from '../../constants/measurements';
 import { Button, PlusIcon, Select } from '../../sharedComponents';
 import {
   measurementActivationRequested,
@@ -33,10 +34,7 @@ export function ScoringForm() {
       </h1>
       <Select
         label="Інструмент"
-        options={[
-          { label: 'Еліпс', value: ViewerTool.ELLIPTICAL_ROI },
-          { label: 'Довжина', value: ViewerTool.LENGTH },
-        ]}
+        options={measurementToolOptions}
         value={selectedTool}
         onChange={(event) => setSelectedTool(event.target.value as ViewerToolName)}
       />
@@ -53,7 +51,7 @@ export function ScoringForm() {
             onActivate={(rowId) => dispatch(measurementActivationRequested({ rowId, toolName: measurement.toolName }))}
             onDeactivate={(rowId) => dispatch(measurementCancellationRequested({ rowId }))}
             onFocus={(annotationId) => dispatch(measurementFocusRequested({ annotationId }))}
-            onDelete={(rowId, annotationId) => dispatch(measurementDeletionRequested({ rowId, annotationId }))}
+            onDelete={(annotationId) => dispatch(measurementDeletionRequested({ annotationId }))}
           />
         ))}
       </MeasurementList>

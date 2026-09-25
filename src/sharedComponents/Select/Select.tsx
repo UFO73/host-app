@@ -7,7 +7,7 @@ type SelectOption = {
 
 type SelectProps = SelectHTMLAttributes<HTMLSelectElement> & {
   label: string;
-  options: SelectOption[];
+  options: readonly SelectOption[];
 };
 
 export function Select({ className = '', label, options, ...props }: SelectProps) {

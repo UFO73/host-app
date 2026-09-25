@@ -3,23 +3,24 @@ import { ViewerTool, type ViewerToolName } from '../../bridge/contract';
 
 export type MeasurementMetric = { value: number; unit: string };
 
-export type Measurement =
-  | { status: 'waiting'; rowId: string; toolName: ViewerToolName }
-  | { status: 'drawing'; rowId: string; toolName: ViewerToolName }
-  | {
-      status: 'completed';
-      rowId: string;
-      annotationId: string;
-      toolName: ViewerToolName;
-      metric: MeasurementMetric;
-    };
-
-export type MeasurementResult = {
+type MeasurementBase = {
   rowId: string;
-  annotationId: string;
   toolName: ViewerToolName;
+};
+
+type PendingMeasurement = MeasurementBase & {
+  status: 'waiting' | 'drawing';
+};
+
+type CompletedMeasurement = MeasurementBase & {
+  status: 'completed';
+  annotationId: string;
   metric: MeasurementMetric;
 };
+
+export type Measurement = PendingMeasurement | CompletedMeasurement;
+
+export type MeasurementResult = Omit<CompletedMeasurement, 'status'>;
 
 export type MeasurementsState = { rows: Measurement[] };
 const initialState: MeasurementsState = { rows: [] };
@@ -80,7 +81,7 @@ export const {
 export const measurementActivationRequested = createAction<{ rowId: string; toolName: ViewerToolName }>('measurements/measurementActivationRequested');
 export const measurementCancellationRequested = createAction<{ rowId: string }>('measurements/measurementCancellationRequested');
 export const measurementFocusRequested = createAction<{ annotationId: string }>('measurements/measurementFocusRequested');
-export const measurementDeletionRequested = createAction<{ rowId: string; annotationId: string }>('measurements/measurementDeletionRequested');
+export const measurementDeletionRequested = createAction<{ annotationId: string }>('measurements/measurementDeletionRequested');
 export const measurementsReducer = measurementsSlice.reducer;
 
 type MeasurementsRootState = { measurements: MeasurementsState };

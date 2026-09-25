@@ -14,13 +14,12 @@ export const deactivateToolPayloadSchema = z.object({
   rowId: rowIdSchema,
 });
 
-export const focusMeasurementPayloadSchema = z.object({
+const annotationPayloadSchema = z.object({
   annotationId: annotationIdSchema,
 });
 
-export const deleteMeasurementPayloadSchema = z.object({
-  annotationId: annotationIdSchema,
-});
+export const focusMeasurementPayloadSchema = annotationPayloadSchema;
+export const deleteMeasurementPayloadSchema = annotationPayloadSchema;
 
 export const measurementPayloadSchema = z.object({
   rowId: rowIdSchema,

@@ -6,7 +6,6 @@
 Host UI
   -> Redux action
   -> listenerMiddleware
-  -> MeasurementFlow
   -> ViewerBridgeClient
   -> window.postMessage
   -> ViewerBridge extension
@@ -16,7 +15,6 @@ OHIF measurementService
   -> ViewerBridge extension
   -> window.postMessage
   -> ViewerBridgeClient
-  -> MeasurementFlow
   -> Redux reducer
   -> selector
   -> Host UI
@@ -38,16 +36,16 @@ OHIF measurementService
 Зберігає тільки serializable domain state:
 
 ```text
-waiting   { rowId }
-drawing   { rowId }
-completed { rowId, annotationId, area }
+waiting   { rowId, toolName }
+drawing   { rowId, toolName }
+completed { rowId, annotationId, toolName, metric }
 ```
 
 Totals не зберігаються у state, а обчислюються selector-ом окремо для кожної одиниці.
 
-### listenerMiddleware і MeasurementFlow
+### listenerMiddleware
 
-`listenerMiddleware` реагує на Activate та Cancel. `MeasurementFlow` перетворює ці наміри на Redux events і виклики bridge.
+`listenerMiddleware` є orchestration layer: реагує на дії UI, викликає bridge та dispatch-ить domain events. Події від ViewerBridgeClient також перетворюються тут на Redux actions.
 
 ### ViewerBridgeClient
 
@@ -69,13 +67,16 @@ Extension отримує `commandsManager` і `servicesManager` у `preRegistrat
 }
 ```
 
-| Напрямок      | Type                  | Payload                                          | Призначення                     |
-| ------------- | --------------------- | ------------------------------------------------ | ------------------------------- |
-| Viewer → Host | `VIEWER_READY`        | `{}`                                             | Viewer готовий приймати команди |
-| Host → Viewer | `ACTIVATE_TOOL`       | `{ rowId, toolName: 'EllipticalROI' }`           | Активувати еліпс для рядка      |
-| Host → Viewer | `DEACTIVATE_TOOL`     | `{ rowId }`                                      | Скасувати очікування малювання  |
-| Viewer → Host | `MEASUREMENT_ADDED`   | `{ rowId, annotationId, area: { value, unit } }` | Передати створене вимірювання   |
-| Viewer → Host | `MEASUREMENT_UPDATED` | `{ rowId, annotationId, area: { value, unit } }` | Оновити площу зміненої анотації |
+| Напрямок      | Type                  | Payload                                     | Призначення                     |
+| ------------- | --------------------- | ------------------------------------------- | ------------------------------- |
+| Viewer → Host | `VIEWER_READY`        | `{}`                                        | Viewer готовий приймати команди |
+| Host → Viewer | `ACTIVATE_TOOL`       | `{ rowId, toolName }`                       | Активувати Ellipse або Length   |
+| Host → Viewer | `DEACTIVATE_TOOL`     | `{ rowId }`                                 | Скасувати очікування малювання  |
+| Host → Viewer | `FOCUS_MEASUREMENT`   | `{ annotationId }`                          | Перейти до анотації             |
+| Host → Viewer | `DELETE_MEASUREMENT`  | `{ annotationId }`                          | Видалити анотацію               |
+| Viewer → Host | `MEASUREMENT_ADDED`   | `{ rowId, annotationId, toolName, metric }` | Передати створене вимірювання   |
+| Viewer → Host | `MEASUREMENT_UPDATED` | `{ rowId, annotationId, toolName, metric }` | Оновити значення                |
+| Viewer → Host | `MEASUREMENT_REMOVED` | `{ rowId, annotationId }`                   | Видалити рядок після дії в OHIF |
 
 Приклад команди:
 
@@ -99,7 +100,8 @@ Extension отримує `commandsManager` і `servicesManager` у `preRegistrat
   "payload": {
     "rowId": "48bd...",
     "annotationId": "annotation-123",
-    "area": {
+    "toolName": "EllipticalROI",
+    "metric": {
       "value": 124.5,
       "unit": "mm²"
     }
@@ -153,6 +155,14 @@ Host не надсилає measurement value назад у Viewer. Напрям�
 - Viewer надсилає тільки readiness і measurement events.
 
 `MEASUREMENT_UPDATED` змінює Redux state та UI, але не створює новий bridge command, тому цикл `Host -> Viewer -> Host -> Viewer` не виникає.
+
+`MEASUREMENT_REMOVED` також змінює тільки Redux state. Host не надсилає у відповідь ще одну команду видалення.
+
+Після натискання `Видалити` Host не прибирає рядок оптимістично. Рядок залишається у Redux до підтвердження `MEASUREMENT_REMOVED` від Viewer.
+
+### Cleanup
+
+Host підключає `window.message` listener під час mount і видаляє його під час unmount. Viewer у `onModeExit` видаляє listener, відписується від OHIF services і скидає активний інструмент у Pan. Під час наступного `onModeEnter` bridge створюється знову.
 
 ### Одиниці вимірювання
 

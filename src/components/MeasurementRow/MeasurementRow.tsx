@@ -1,6 +1,6 @@
+import { measurementStatusLabels, measurementToolLabels } from '../../constants/measurements';
 import { Badge, Button, EyeIcon, PlayIcon, TrashIcon } from '../../sharedComponents';
 import type { Measurement } from '../../store/slices/measurementsSlice';
-import { ViewerTool } from '../../bridge/contract';
 
 type MeasurementRowProps = {
   measurement: Measurement;
@@ -8,18 +8,12 @@ type MeasurementRowProps = {
   onActivate: (rowId: string) => void;
   onDeactivate: (rowId: string) => void;
   onFocus: (annotationId: string) => void;
-  onDelete: (rowId: string, annotationId: string) => void;
-};
-
-const statusLabel: Record<Measurement['status'], string> = {
-  waiting: 'Очікує',
-  drawing: 'Малювання…',
-  completed: 'Готово',
+  onDelete: (annotationId: string) => void;
 };
 
 export function MeasurementRow({ measurement, index, onActivate, onDeactivate, onFocus, onDelete }: MeasurementRowProps) {
   const metric = measurement.status === 'completed' ? measurement.metric : undefined;
-  const typeLabel = measurement.toolName === ViewerTool.LENGTH ? 'Довжина' : 'Еліпс';
+  const typeLabel = measurementToolLabels[measurement.toolName];
   const name = `${typeLabel} ${String(index + 1).padStart(2, '0')}`;
 
   return (
@@ -28,7 +22,7 @@ export function MeasurementRow({ measurement, index, onActivate, onDeactivate, o
         {name}
       </td>
       <td className="tw:px-2 tw:py-3">
-        <Badge status={measurement.status}>{statusLabel[measurement.status]}</Badge>
+        <Badge status={measurement.status}>{measurementStatusLabels[measurement.status]}</Badge>
       </td>
       <td className="tw:px-2 tw:py-3 tw:font-medium">
         {metric ? metric.value.toFixed(1) : '-'}
@@ -58,7 +52,7 @@ export function MeasurementRow({ measurement, index, onActivate, onDeactivate, o
               className="tw:px-2 tw:sm:flex-1"
               title="Видалити"
               variant="danger"
-              onClick={() => onDelete(measurement.rowId, measurement.annotationId)}
+              onClick={() => onDelete(measurement.annotationId)}
             >
               <TrashIcon className="tw:size-4" />
               <span className="tw:hidden tw:sm:inline">Видалити</span>
